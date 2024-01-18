@@ -131,9 +131,77 @@ class _TurfJSState extends State<TurfJS> {
     setState(() {});
   }
 
+  bool isPointOnLine(
+      double px, double py, double x1, double y1, double x2, double y2) {
+    // get distance from the point to the two ends of the line
+    var d1 = math.sqrt(math.pow(px - x1, 2) + math.pow(py - y1, 2));
+    var d2 = math.sqrt(math.pow(px - x2, 2) + math.pow(py - y2, 2));
+
+    // get the length of the line
+    var lineLen = math.sqrt(math.pow(x1 - x2, 2) + math.pow(y1 - y2, 2));
+
+    // since floats are so minutely accurate, add
+    // a little buffer zone that will give collision
+    var buffer = 0.1; // higher # = less accurate
+
+    // if the two distances are equal to the line's
+    // length, the point is on the line!
+    // note we use the buffer here to give a range,
+    // rather than one #
+    if (d1 + d2 >= lineLen - buffer && d1 + d2 <= lineLen + buffer) {
+      return true;
+    }
+    return false;
+  }
+
+  bool isPointInPolygon(double x, double y, List<Position?> polygon) {
+    for (var i = 0; i < polygon.length; i++) {
+      var j = i + 1;
+      if (j == polygon.length) {
+        j = 0;
+      }
+      var xi = polygon[i]!.lng;
+      var yi = polygon[i]!.lat;
+      var xj = polygon[j]!.lng;
+      var yj = polygon[j]!.lat;
+
+      var onLine = isPointOnLine(
+          x, y, xi as double, yi as double, xj as double, yj as double);
+      if (onLine) {
+        print('on line');
+        return true;
+      }
+
+      var oddNodes = false;
+      if ((yi < y && yj >= y) || (yj < y && yi >= y)) {
+        if (xi + (y - yi) / (yj - yi) * (xj - xi) < x) {
+          oddNodes = !oddNodes;
+        }
+      }
+
+      if (oddNodes) {
+        print('inside');
+        return true;
+      } else {
+        print('outside');
+        return false;
+      }
+    }
+    return false;
+  }
+
   void createHex(GeoJSONObject geojson) {
-    var hexagons = createHexGridWithinBBox(geojson, 1);
-    print(hexagons);
+    var hexagons = createHexGridWithinBBox(geojson, 2);
+    List<Position?> pos = geojson.coordAll();
+    List<Hexagon> newhexagons = [];
+    for (var hexagon in hexagons) {
+      // if (isPointInPolygon(
+      //     hexagon.centerX as double, hexagon.centerY as double, pos)) {
+      //   newhexagons.add(hexagon);
+      // }
+      print('${hexagon.centerX} ${hexagon.centerY}');
+    }
+
     setState(() {
       this.hexagons.add(hexagons);
     });
@@ -164,9 +232,21 @@ class _TurfJSState extends State<TurfJS> {
       ),
       body: hexagons != null
           ? ListView.builder(
+              scrollDirection: Axis.horizontal,
               itemCount: hexagons.length,
               itemBuilder: (context, index) {
-                return InteractiveHexagonWidget(hexagons[index]);
+                return Column(
+                  children: [
+                    Text('Hexagon ${index + 1}'),
+                    Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.black,
+                          ),
+                        ),
+                        child: InteractiveHexagonWidget(hexagons[index])),
+                  ],
+                );
               },
             )
           : const Center(

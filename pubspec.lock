@@ -225,7 +225,7 @@ packages:
     source: hosted
     version: "0.0.2"
   turf_pip:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: turf_pip
       sha256: "2b33d14ad979e4c33a4f01949b62510356d28037062bd45b60752e4dec9e7dd1"

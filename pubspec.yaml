@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   turf: ^0.0.8
+  turf_pip: ^0.0.1+1
 
 dev_dependencies:
   flutter_test:
