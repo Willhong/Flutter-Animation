@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:honganimation/screens/explicit_animations_screen.dart';
 import 'package:honganimation/screens/implicit_animations_screen.dart';
+import 'package:honganimation/screens/turf_screen.dart';
 
 class MenuScreen extends StatelessWidget {
   const MenuScreen({super.key});
@@ -40,6 +41,15 @@ class MenuScreen extends StatelessWidget {
               );
             },
             child: const Text('Explicit Animations'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              _goToPage(
+                context,
+                const TurfJS(),
+              );
+            },
+            child: const Text('TurfJS'),
           ),
         ],
       )),

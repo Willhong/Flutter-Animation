@@ -1,14 +1,15 @@
 name: honganimation
 description: A new Flutter project.
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
-  sdk: '>=3.1.5 <4.0.0'
+  sdk: ">=3.1.5 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
+  turf: ^0.0.8
 
 dev_dependencies:
   flutter_test:
@@ -17,3 +18,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/
