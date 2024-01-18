@@ -20,9 +20,9 @@ class HexagonPainter extends CustomPainter {
     for (var hexagon in hexagons) {
       var points = hexagon.getVertices();
       var path = Path()
-        ..moveTo(points.last.dx * 2 + 50, points.last.dy * 2 + 100);
+        ..moveTo(points.last.dx * 8 + 50, points.last.dy * 8 + 100);
       for (var point in points) {
-        path.lineTo(point.dx * 2 + 50, point.dy * 2 + 100);
+        path.lineTo(point.dx * 8 + 50, point.dy * 8 + 100);
       }
       path.close();
       if (tapped.contains(i)) {

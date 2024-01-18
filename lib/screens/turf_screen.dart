@@ -154,56 +154,35 @@ class _TurfJSState extends State<TurfJS> {
     return false;
   }
 
-  bool isPointInPolygon(double x, double y, List<Position?> polygon) {
-    for (var i = 0; i < polygon.length; i++) {
-      var j = i + 1;
-      if (j == polygon.length) {
-        j = 0;
-      }
-      var xi = polygon[i]!.lng;
-      var yi = polygon[i]!.lat;
-      var xj = polygon[j]!.lng;
-      var yj = polygon[j]!.lat;
-
-      var onLine = isPointOnLine(
-          x, y, xi as double, yi as double, xj as double, yj as double);
-      if (onLine) {
-        print('on line');
-        return true;
-      }
-
-      var oddNodes = false;
-      if ((yi < y && yj >= y) || (yj < y && yi >= y)) {
-        if (xi + (y - yi) / (yj - yi) * (xj - xi) < x) {
-          oddNodes = !oddNodes;
-        }
-      }
-
-      if (oddNodes) {
-        print('inside');
-        return true;
-      } else {
-        print('outside');
-        return false;
+  bool isPointInPolygon(Position point, List<Position?> polygon) {
+    bool inside = false;
+    for (int i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      if ((polygon[i]!.lng > point.lng) != (polygon[j]!.lng > point.lng) &&
+          (point.lat <
+              (polygon[j]!.lat - polygon[i]!.lat) *
+                      (point.lng - polygon[i]!.lng) /
+                      (polygon[j]!.lng - polygon[i]!.lng) +
+                  polygon[i]!.lat)) {
+        inside = !inside;
       }
     }
-    return false;
+    return inside;
   }
 
   void createHex(GeoJSONObject geojson) {
-    var hexagons = createHexGridWithinBBox(geojson, 2);
-    List<Position?> pos = geojson.coordAll();
+    var hexagons = createHexGridWithinBBox(geojson, 0.3868);
+    List<Position?> pol = geojson.coordAll();
     List<Hexagon> newhexagons = [];
     for (var hexagon in hexagons) {
-      // if (isPointInPolygon(
-      //     hexagon.centerX as double, hexagon.centerY as double, pos)) {
-      //   newhexagons.add(hexagon);
-      // }
+      Position pos = Position(hexagon.centerX, hexagon.centerY);
+      if (isPointInPolygon(pos, pol)) {
+        newhexagons.add(hexagon);
+      }
       print('${hexagon.centerX} ${hexagon.centerY}');
     }
 
     setState(() {
-      this.hexagons.add(hexagons);
+      this.hexagons.add(newhexagons);
     });
   }
 
@@ -237,14 +216,20 @@ class _TurfJSState extends State<TurfJS> {
               itemBuilder: (context, index) {
                 return Column(
                   children: [
-                    Text('Hexagon ${index + 1}'),
+                    Text(
+                        'Hexagon ${index + 1}, size: ${hexagons[index].length}'),
                     Container(
                         decoration: BoxDecoration(
                           border: Border.all(
                             color: Colors.black,
                           ),
                         ),
-                        child: InteractiveHexagonWidget(hexagons[index])),
+                        child: InteractiveViewer(
+                            maxScale: 10,
+                            onInteractionStart: (details) {
+                              print(details);
+                            },
+                            child: InteractiveHexagonWidget(hexagons[index]))),
                   ],
                 );
               },

@@ -73,9 +73,9 @@ class _InteractiveHexagonWidgetState extends State<InteractiveHexagonWidget> {
     double y = point.dy;
     List<Offset> vertices = hexagon.getVertices();
     Path path = Path()
-      ..moveTo(vertices.last.dx * 2 + 50, vertices.last.dy * 2 + 50);
+      ..moveTo(vertices.last.dx * 8 + 50, vertices.last.dy * 8 + 50);
     for (var vertex in vertices) {
-      path.lineTo(vertex.dx * 2 + 50, vertex.dy * 2 + 100);
+      path.lineTo(vertex.dx * 8 + 50, vertex.dy * 8 + 100);
     }
     path.close();
     return path.contains(Offset(x, y));
