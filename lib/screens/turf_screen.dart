@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:honganimation/define/land_list.dart';
 import 'package:honganimation/screens/interactive_hexagon_widget.dart';
 import 'package:turf/extensions.dart';
 import 'package:turf/turf.dart';
@@ -33,8 +34,8 @@ class Hexagon {
   }
 }
 
-_LoadJSON() async {
-  var json = await rootBundle.loadString('assets/mars.json');
+_LoadJSON(String LandList) async {
+  var json = await rootBundle.loadString('assets/area/$LandList');
   var data = jsonDecode(json);
   print(data);
   return data;
@@ -107,7 +108,7 @@ List<Hexagon> createHexGrid(
 class _TurfJSState extends State<TurfJS> {
   var data;
   GeoJSONObject? geojson;
-  List<Feature<GeometryObject>>? featureCollection = [];
+  Map<String, List<Feature<GeometryObject>>?> featureCollection = {};
   List<List<Hexagon>> hexagons = [];
 
   @override
@@ -118,15 +119,24 @@ class _TurfJSState extends State<TurfJS> {
   }
 
   void loadJson() async {
-    data = await _LoadJSON();
-    geojson = GeoJSONObject.fromJson(data);
+    Map<String, GeoJSONObject> landGeoJson = {};
+    for (var element in LandList) {
+      var data = await _LoadJSON(element);
+      landGeoJson[element] = (GeoJSONObject.fromJson(data));
+    }
+    for (var element in landGeoJson.values) {
+      List<Feature<GeometryObject>>? newfeatureCollection = [];
 
-    geojson!.featureEach((currentFeature, featureIndex) => {
-          print(currentFeature),
-          print(featureIndex),
-          featureCollection!.add(currentFeature),
-          createHex(currentFeature),
-        });
+      element.featureEach((currentFeature, featureIndex) => {
+            print(currentFeature),
+            print(featureIndex),
+            newfeatureCollection.add(currentFeature),
+          });
+
+      featureCollection[landGeoJson.keys
+              .elementAt(landGeoJson.values.toList().indexOf(element))] =
+          newfeatureCollection;
+    }
 
     setState(() {});
   }
@@ -212,12 +222,12 @@ class _TurfJSState extends State<TurfJS> {
       body: hexagons != null
           ? ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: hexagons.length,
+              itemCount: featureCollection.length,
               itemBuilder: (context, index) {
                 return Column(
                   children: [
                     Text(
-                        'Hexagon ${index + 1}, size: ${hexagons[index].length}'),
+                        'Hexagon ${index + 1}, ${featureCollection.values.elementAt(index)!.length}'),
                     Container(
                         decoration: BoxDecoration(
                           border: Border.all(
@@ -225,11 +235,14 @@ class _TurfJSState extends State<TurfJS> {
                           ),
                         ),
                         child: InteractiveViewer(
-                            maxScale: 10,
+                            maxScale: 100,
                             onInteractionStart: (details) {
                               print(details);
                             },
-                            child: InteractiveHexagonWidget(hexagons[index]))),
+                            child: InteractiveHexagonWidget(
+                              featureCollection[
+                                  featureCollection.keys.elementAt(index)],
+                            ))),
                   ],
                 );
               },

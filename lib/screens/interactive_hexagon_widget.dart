@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:honganimation/screens/turf_screen.dart';
 import 'package:honganimation/utility/hexagon_painter.dart';
+import 'package:turf/turf.dart';
 
 class InteractiveHexagonWidget extends StatefulWidget {
-  final List<Hexagon> hexagons;
+  final List<Feature<GeometryObject>>? hexagons;
 
   const InteractiveHexagonWidget(this.hexagons, {super.key});
 
@@ -43,23 +44,23 @@ class _InteractiveHexagonWidgetState extends State<InteractiveHexagonWidget> {
     // Logic to determine which hexagon is tapped
     // This involves checking if the tapPosition falls within any hexagon's area
     int i = 0;
-    for (var hexagon in widget.hexagons) {
-      if (isPointInsideHexagon(tapPosition, hexagon)) {
-        print('Tapped hexagon: ${hexagon.size}, $i');
-        if (tapped.contains(i)) {
-          tapped.remove(i);
-        } else {
-          tapped.add(i);
-        }
+    // for (var hexagon in widget.hexagons) {
+    //   if (isPointInsideHexagon(tapPosition, hexagon)) {
+    //     print('Tapped hexagon: ${hexagon.size}, $i');
+    //     if (tapped.contains(i)) {
+    //       tapped.remove(i);
+    //     } else {
+    //       tapped.add(i);
+    //     }
 
-        setState(() {
-          tapped = tapped;
-        });
+    //     setState(() {
+    //       tapped = tapped;
+    //     });
 
-        return hexagon;
-      }
-      i++;
-    }
+    //     return hexagon;
+    //   }
+    //   i++;
+    // }
     return null;
   }
 
